@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 
 public class MyCharacterController : MonoBehaviour
@@ -9,6 +10,7 @@ public class MyCharacterController : MonoBehaviour
     private Rigidbody2D rb; // Компонент Rigidbody2D
     private bool isGrounded = false; // Проверка, на земле ли персонаж
     public LayerMask groundLayer; // Слой земли
+    private bool hasKicked = false; //проверка столкновения с врагом(объектом enemy)
 
     void Start()
     {
@@ -72,5 +74,22 @@ public class MyCharacterController : MonoBehaviour
 
         // Рисуем луч
         Gizmos.DrawLine(start, end);
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy") && !hasKicked)
+        {
+            UnityEngine.Debug.Log("KICK");
+            hasKicked = true;
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            hasKicked = false;
+        }
     }
 }
