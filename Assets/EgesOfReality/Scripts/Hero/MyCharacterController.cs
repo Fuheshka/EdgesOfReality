@@ -12,6 +12,7 @@ public class MyCharacterController : MonoBehaviour
     public float attackRange = 1f; // Радиус атаки
     public LayerMask enemyLayer; // Слой врагов
     public int attackDamage = 1; // Урон от атак
+    private float timeLeft = 0;
 
     private Rigidbody2D rb;
     private bool isGrounded = false;
@@ -119,6 +120,19 @@ public class MyCharacterController : MonoBehaviour
         {
             Debug.Log("Attacked " + enemy.name);
             enemy.GetComponent<MyEnemy>().TakeDamage(attackDamage);
+        }
+    }
+
+    public void TakeDamage(int damage)
+    {
+        hp -= damage;
+        sprite.color = new Color(1, 0, 0, 1); // Красный цвет при получении урона
+        timeLeft = 0.1f;
+
+        if (hp <= 0)
+        {
+            Destroy(gameObject);
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
     }
 
