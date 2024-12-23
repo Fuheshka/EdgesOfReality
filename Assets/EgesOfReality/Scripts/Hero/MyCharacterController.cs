@@ -2,12 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class MyCharacterController : MonoBehaviour
 {
     public float moveSpeed = 10f; // Скорость перемещения
     public float jumpForce = 6f; // Сила прыжка
+    
     public int hp = 10;
+    public Text healthText; // Текст для отображения текста "Health"
+    public Text healthRemainText; // Текст для отображения оставшегося здоровья
+
 
     public float attackRange = 1f; // Радиус атаки
     public LayerMask enemyLayer; // Слой врагов
@@ -25,6 +30,7 @@ public class MyCharacterController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         sprite = GetComponent<SpriteRenderer>();
+        UpdateHealthUI();
     }
 
     void Update()
@@ -55,6 +61,10 @@ public class MyCharacterController : MonoBehaviour
         {
             Destroy(rb);
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
+        if (hp != int.Parse(healthRemainText.text)) // Только если значение здоровья изменилось
+        {
+            UpdateHealthUI();
         }
     }
 
@@ -133,7 +143,14 @@ public class MyCharacterController : MonoBehaviour
         {
             Destroy(gameObject);
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            UpdateHealthUI();
         }
+    }
+
+    private void UpdateHealthUI()
+    {
+        healthText.text = "Здоровье: "; // Отображаем текст "Health"
+        healthRemainText.text = hp.ToString(); // Отображаем текущее количество здоровья
     }
 
     private void OnDrawGizmosSelected()
