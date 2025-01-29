@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-	public float FollowSpeed = 2f;
+	public float FollowSpeed = 5f;
 	public Transform Target;
 
 	// Transform of the camera to shake. Grabs the gameObject's transform

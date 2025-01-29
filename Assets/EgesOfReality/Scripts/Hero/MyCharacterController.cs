@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,15 +7,15 @@ using UnityEngine.UI;
 
 public class MyCharacterController : MonoBehaviour
 {
-    public float moveSpeed = 10f; // Скорость перемещения
-    public float jumpForce = 6f; // Сила прыжка
+    public float moveSpeed = 30f; // Скорость перемещения
+    public float jumpForce = 35f; // Сила прыжка
     
     public int hp = 10;
     public Text healthText; // Текст для отображения текста "Health"
     public Text healthRemainText; // Текст для отображения оставшегося здоровья
 
 
-    public float attackRange = 1f; // Радиус атаки
+    public float attackRange = 3f; // Радиус атаки
     public LayerMask enemyLayer; // Слой врагов
     public int attackDamage = 1; // Урон от атак
     private float timeLeft = 0;
@@ -59,7 +60,7 @@ public class MyCharacterController : MonoBehaviour
 
         if (hp <= 0)
         {
-            Destroy(rb);
+            Destroy(gameObject); // Уничтожить весь объект
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
         if (hp != int.Parse(healthRemainText.text)) // Только если значение здоровья изменилось
@@ -84,6 +85,7 @@ public class MyCharacterController : MonoBehaviour
     {
         rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
         isGrounded = false;
+        Debug.Log("Jump");
     }
 
     private void FixedUpdate()
@@ -94,8 +96,11 @@ public class MyCharacterController : MonoBehaviour
     private void CheckGrounded()
     {
         Vector2 position = transform.position;
-        RaycastHit2D hit = Physics2D.Raycast(position, Vector2.down, 0.6f, groundLayer);
+        RaycastHit2D hit = Physics2D.Raycast(position, Vector2.down, 5.5f, groundLayer);
         isGrounded = hit.collider != null;
+
+        // Визуализация луча (будет видна в сцене в Play Mode)
+        Debug.DrawRay(position, Vector2.down * 5.5f, Color.red);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -105,6 +110,7 @@ public class MyCharacterController : MonoBehaviour
             hp -= 1;
             hasKicked = true;
             sprite.color = new Color(1, 0, 0, 1);
+            UpdateHealthUI();
         }
     }
 
@@ -158,8 +164,8 @@ public class MyCharacterController : MonoBehaviour
         Gizmos.color = Color.red;
 
         // Показать радиус атаки для отладки
-        Gizmos.DrawWireSphere((Vector2)transform.position + Vector2.down * 0.5f, attackRange); // Атака вниз
-        Gizmos.DrawWireSphere((Vector2)transform.position + Vector2.right * Mathf.Sign(transform.localScale.x) * 0.5f, attackRange); // Атака вперед
-        Gizmos.DrawWireSphere((Vector2)transform.position + Vector2.up * 0.5f, attackRange); // Атака вверх
+        Gizmos.DrawWireSphere((Vector2)transform.position + Vector2.down * 5f, attackRange); // Атака вниз
+        Gizmos.DrawWireSphere((Vector2)transform.position + Vector2.right * Mathf.Sign(transform.localScale.x) * 5f, attackRange); // Атака вперед
+        Gizmos.DrawWireSphere((Vector2)transform.position + Vector2.up * 5f, attackRange); // Атака вверх
     }
 }
