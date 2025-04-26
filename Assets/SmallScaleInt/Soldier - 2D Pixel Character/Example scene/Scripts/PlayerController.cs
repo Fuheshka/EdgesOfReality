@@ -75,7 +75,7 @@ namespace SmallScaleInteractive._2DCharacter
                 {
                     jumpCount = 0; // Reset double jump count to allow ground mechanics to handle further jumps
                 }
-                if (rb.velocity.y < 0) //if running off a cliff for example
+                if (rb.linearVelocity.y < 0) //if running off a cliff for example
                 {
                     isGrounded = false;
                     isCurrentlyJumping = true;
@@ -100,23 +100,23 @@ namespace SmallScaleInteractive._2DCharacter
             if (isPressingRight)
             {
                 animator.SetInteger("Direction", 0); // Assume 0 is for moving right (east)
-                rb.velocity = new Vector2(speed, rb.velocity.y);
+                rb.linearVelocity = new Vector2(speed, rb.linearVelocity.y);
             }
             else if (isPressingLeft)
             {
                 animator.SetInteger("Direction", 1); // Assume 1 is for moving left (west)
-                rb.velocity = new Vector2(-speed, rb.velocity.y);
+                rb.linearVelocity = new Vector2(-speed, rb.linearVelocity.y);
             }
             else
             {
-                rb.velocity = new Vector2(0, rb.velocity.y); // No horizontal movement
+                rb.linearVelocity = new Vector2(0, rb.linearVelocity.y); // No horizontal movement
             }
 
             // Update the animator's walking state
             animator.SetBool("isWalking", isMoving);
 
             // Handle falling and crouching animations
-            if (!isGrounded && rb.velocity.y < 0)
+            if (!isGrounded && rb.linearVelocity.y < 0)
             {
                 animator.SetBool("isSliding", false);
                 animator.SetBool("isFalling", true);
@@ -146,8 +146,8 @@ namespace SmallScaleInteractive._2DCharacter
         {
             if (Input.GetMouseButtonDown(0) && isGrounded) // Left mouse button for attack
             {
-                bool wasMovingWhenAttacked = Mathf.Abs(rb.velocity.x) > 0;
-                float attackDirection = Mathf.Sign(rb.velocity.x); // Get the direction of the attack based on velocity
+                bool wasMovingWhenAttacked = Mathf.Abs(rb.linearVelocity.x) > 0;
+                float attackDirection = Mathf.Sign(rb.linearVelocity.x); // Get the direction of the attack based on velocity
 
                 // Trigger appropriate animations based on whether the player was moving when they attacked
                 if (wasMovingWhenAttacked)
@@ -235,9 +235,9 @@ namespace SmallScaleInteractive._2DCharacter
             else // Double jump
             {
                 // First, cancel out any existing downward velocity
-                if (rb.velocity.y < 0)
+                if (rb.linearVelocity.y < 0)
                 {
-                    rb.velocity = new Vector2(rb.velocity.x, 0);  // Reset vertical velocity
+                    rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0);  // Reset vertical velocity
                 }
 
                 // Trigger the double jump animation
@@ -288,7 +288,7 @@ namespace SmallScaleInteractive._2DCharacter
             rb.gravityScale = 1;
             isCurrentlyJumping = false;
 
-            bool isMoving = Mathf.Abs(rb.velocity.x) > 0;
+            bool isMoving = Mathf.Abs(rb.linearVelocity.x) > 0;
             if (isAirSlamming && isGrounded)
             {
                 animator.SetTrigger("isAirSlamLand");
@@ -348,7 +348,7 @@ namespace SmallScaleInteractive._2DCharacter
             yield return new WaitForSeconds(0.5f); // Wait for 0.2 seconds to let the animation initiate
 
             // Apply the downward force after the delay
-            rb.velocity = new Vector2(0, -airSlamForce); // Stop horizontal movement and apply strong downward force
+            rb.linearVelocity = new Vector2(0, -airSlamForce); // Stop horizontal movement and apply strong downward force
         }
 
         //Dashing:
@@ -413,7 +413,7 @@ namespace SmallScaleInteractive._2DCharacter
             // Apply the dash force in the calculated direction if a direction was actually set
             if (dashDirectionX != 0 || dashDirectionY != 0)
             {
-                rb.velocity = new Vector2(dashDirectionX * airDashForce, dashDirectionY * airDashForce);
+                rb.linearVelocity = new Vector2(dashDirectionX * airDashForce, dashDirectionY * airDashForce);
                 yield return new WaitForSeconds(0.7f);  // Duration of the dash effect
             }
 
@@ -472,12 +472,12 @@ namespace SmallScaleInteractive._2DCharacter
             // Check for wall climbing and jumping animations
             if (!isGrounded && isCurrentlyJumping)
             {
-                if (rb.velocity.y > 0)
+                if (rb.linearVelocity.y > 0)
                 {
                     animator.SetBool("isFalling", false);
                     animator.SetBool("isJumpMid", true);
                 }
-                else if (rb.velocity.y <= 0)
+                else if (rb.linearVelocity.y <= 0)
                 {
                     animator.SetBool("isJumpMid", false);
                     animator.SetBool("isFalling", true);
@@ -503,17 +503,17 @@ namespace SmallScaleInteractive._2DCharacter
                 // Handling vertical movement on the wall
                 if (moveVertical > 0)
                 {
-                    rb.velocity = new Vector2(rb.velocity.x, wallClimbSpeed);
+                    rb.linearVelocity = new Vector2(rb.linearVelocity.x, wallClimbSpeed);
                     animator.SetBool("isClimbing", true);
                 }
                 else if (moveVertical < 0)
                 {
-                    rb.velocity = new Vector2(rb.velocity.x, -wallSlideSpeed);
+                    rb.linearVelocity = new Vector2(rb.linearVelocity.x, -wallSlideSpeed);
                     animator.SetBool("isWallSlide", true);
                 }
                 else
                 {
-                    rb.velocity = new Vector2(rb.velocity.x, 0);
+                    rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0);
                     animator.SetBool("isWallSlide", false);
                     animator.SetBool("isClimbing", false);
                 }
@@ -648,7 +648,7 @@ namespace SmallScaleInteractive._2DCharacter
 
             // Save the original gravity scale and velocity
             float originalGravityScale = rb.gravityScale;
-            Vector2 originalVelocity = rb.velocity;
+            Vector2 originalVelocity = rb.linearVelocity;
 
             // Deactivate colliders
             EdgeCollider2D edgeCollider = GetComponent<EdgeCollider2D>();
@@ -658,7 +658,7 @@ namespace SmallScaleInteractive._2DCharacter
 
             // Freeze all movement and gravity
             rb.gravityScale = 0;
-            rb.velocity = Vector2.zero;  // Instantly stop any movement
+            rb.linearVelocity = Vector2.zero;  // Instantly stop any movement
 
             yield return new WaitForSeconds(0.66f); // Adjust time based on your animation
 
@@ -668,7 +668,7 @@ namespace SmallScaleInteractive._2DCharacter
 
             transform.position = new Vector3(newXPosition, newYPosition, transform.position.z);
             animator.SetBool("isWalking", false);
-            rb.velocity = Vector2.zero;
+            rb.linearVelocity = Vector2.zero;
 
             // Reactivate colliders 
             if (edgeCollider != null) edgeCollider.enabled = true;

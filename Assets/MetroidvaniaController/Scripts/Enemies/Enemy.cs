@@ -35,17 +35,17 @@ public class Enemy : MonoBehaviour {
 		isPlat = Physics2D.OverlapCircle(fallCheck.position, .2f, 1 << LayerMask.NameToLayer("Default"));
 		isObstacle = Physics2D.OverlapCircle(wallCheck.position, .2f, turnLayerMask);
 
-		if (!isHitted && life > 0 && Mathf.Abs(rb.velocity.y) < 0.5f)
+		if (!isHitted && life > 0 && Mathf.Abs(rb.linearVelocity.y) < 0.5f)
 		{
 			if (isPlat && !isObstacle && !isHitted)
 			{
 				if (facingRight)
 				{
-					rb.velocity = new Vector2(-speed, rb.velocity.y);
+					rb.linearVelocity = new Vector2(-speed, rb.linearVelocity.y);
 				}
 				else
 				{
-					rb.velocity = new Vector2(speed, rb.velocity.y);
+					rb.linearVelocity = new Vector2(speed, rb.linearVelocity.y);
 				}
 			}
 			else
@@ -72,7 +72,7 @@ public class Enemy : MonoBehaviour {
 			damage = Mathf.Abs(damage);
 			transform.GetComponent<Animator>().SetBool("Hit", true);
 			life -= damage;
-			rb.velocity = Vector2.zero;
+			rb.linearVelocity = Vector2.zero;
 			rb.AddForce(new Vector2(direction * 500f, 100f));
 			StartCoroutine(HitTime());
 		}
@@ -102,7 +102,7 @@ public class Enemy : MonoBehaviour {
 		capsule.offset = new Vector2(0f, -0.8f);
 		capsule.direction = CapsuleDirection2D.Horizontal;
 		yield return new WaitForSeconds(0.25f);
-		rb.velocity = new Vector2(0, rb.velocity.y);
+		rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
 		yield return new WaitForSeconds(3f);
 		Destroy(gameObject);
 	}

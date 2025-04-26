@@ -85,7 +85,7 @@ public class CharacterFixEditor
         {
             return false;
         }
-        if (rigidbody.constraints != RigidbodyConstraints.FreezeAll || rigidbody.useGravity != false || rigidbody.angularDrag != 0.0f)
+        if (rigidbody.constraints != RigidbodyConstraints.FreezeAll || rigidbody.useGravity != false || rigidbody.angularDamping != 0.0f)
         {
             return false;
         }
@@ -163,7 +163,7 @@ public class CharacterFixEditor
         }
         rigidbody.constraints = RigidbodyConstraints.FreezeAll;
         rigidbody.useGravity = false;
-        rigidbody.angularDrag = 0.0f;
+        rigidbody.angularDamping = 0.0f;
         CapsuleVolumeIntegrity volumeIntegrity = a_Object.GetComponent<CapsuleVolumeIntegrity>();
         if (volumeIntegrity == null)
         {

@@ -63,13 +63,13 @@ namespace YkinikY
             if ((Input.GetKey(KeyCode.Space) & canJump) || (Input.GetKey(KeyCode.W) & canJump))
             {
                 canJump = false;
-                GetComponent<Rigidbody2D>().velocity = new Vector2(GetComponent<Rigidbody2D>().velocity.x, 6);
+                GetComponent<Rigidbody2D>().linearVelocity = new Vector2(GetComponent<Rigidbody2D>().linearVelocity.x, 6);
             }
             // Contoller definitions
             if (Input.GetButton("Jump") && canJump)
             {
                 canJump = false;
-                GetComponent<Rigidbody2D>().velocity = new Vector2(GetComponent<Rigidbody2D>().velocity.x, 6);
+                GetComponent<Rigidbody2D>().linearVelocity = new Vector2(GetComponent<Rigidbody2D>().linearVelocity.x, 6);
             }
             transform.position += 5 * Time.deltaTime * velocity * Vector3.right * Input.GetAxis("Horizontal");
             if (Input.GetAxis("Horizontal") == 1)
@@ -101,22 +101,22 @@ namespace YkinikY
         {
             if (collision.name == "Elevator")
             {
-                GetComponent<Rigidbody2D>().velocity = new Vector2(GetComponent<Rigidbody2D>().velocity.x, 6);
+                GetComponent<Rigidbody2D>().linearVelocity = new Vector2(GetComponent<Rigidbody2D>().linearVelocity.x, 6);
             }
             if (collision.name == "Down_elevator")
             {
-                GetComponent<Rigidbody2D>().velocity = new Vector2(GetComponent<Rigidbody2D>().velocity.x, -4);
+                GetComponent<Rigidbody2D>().linearVelocity = new Vector2(GetComponent<Rigidbody2D>().linearVelocity.x, -4);
             }
         }
         private void OnCollisionStay2D(Collision2D collision)
         {
             if (collision.gameObject.name == "Nastro trasportatore s")
             {
-                GetComponent<Rigidbody2D>().AddForce(new Vector3(-20, GetComponent<Rigidbody2D>().velocity.y));
+                GetComponent<Rigidbody2D>().AddForce(new Vector3(-20, GetComponent<Rigidbody2D>().linearVelocity.y));
             }
             if (collision.gameObject.name == "Nastro trasportatore d")
             {
-                GetComponent<Rigidbody2D>().AddForce(new Vector3(20, GetComponent<Rigidbody2D>().velocity.y));
+                GetComponent<Rigidbody2D>().AddForce(new Vector3(20, GetComponent<Rigidbody2D>().linearVelocity.y));
             }
         }
         private void OnTriggerEnter2D(Collider2D collision)

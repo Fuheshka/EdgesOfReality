@@ -67,7 +67,7 @@ namespace Platformer.Mechanics
         {
             body.position = position;
             velocity *= 0;
-            body.velocity *= 0;
+            body.linearVelocity *= 0;
         }
 
         protected virtual void OnEnable()

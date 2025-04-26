@@ -18,7 +18,7 @@ public class ThrowableWeapon : MonoBehaviour
     void FixedUpdate()
     {
 		if ( !hasHit)
-		GetComponent<Rigidbody2D>().velocity = direction * speed;
+		GetComponent<Rigidbody2D>().linearVelocity = direction * speed;
 	}
 
 	void OnCollisionEnter2D(Collision2D collision)

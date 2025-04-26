@@ -81,7 +81,7 @@ public class CharacterController2D : MonoBehaviour
 					if (!m_IsWall && !isDashing) 
 						particleJumpDown.Play();
 					canDoubleJump = true;
-					if (m_Rigidbody2D.velocity.y < 0f)
+					if (m_Rigidbody2D.linearVelocity.y < 0f)
 						limitVelOnWallJump = false;
 				}
 		}
@@ -100,12 +100,12 @@ public class CharacterController2D : MonoBehaviour
 					m_IsWall = true;
 				}
 			}
-			prevVelocityX = m_Rigidbody2D.velocity.x;
+			prevVelocityX = m_Rigidbody2D.linearVelocity.x;
 		}
 
 		if (limitVelOnWallJump)
 		{
-			if (m_Rigidbody2D.velocity.y < -0.5f)
+			if (m_Rigidbody2D.linearVelocity.y < -0.5f)
 				limitVelOnWallJump = false;
 			jumpWallDistX = (jumpWallStartX - transform.position.x) * transform.localScale.x;
 			if (jumpWallDistX < -0.5f && jumpWallDistX > -1f) 
@@ -115,17 +115,17 @@ public class CharacterController2D : MonoBehaviour
 			else if (jumpWallDistX < -1f && jumpWallDistX >= -2f) 
 			{
 				canMove = true;
-				m_Rigidbody2D.velocity = new Vector2(10f * transform.localScale.x, m_Rigidbody2D.velocity.y);
+				m_Rigidbody2D.linearVelocity = new Vector2(10f * transform.localScale.x, m_Rigidbody2D.linearVelocity.y);
 			}
 			else if (jumpWallDistX < -2f) 
 			{
 				limitVelOnWallJump = false;
-				m_Rigidbody2D.velocity = new Vector2(0, m_Rigidbody2D.velocity.y);
+				m_Rigidbody2D.linearVelocity = new Vector2(0, m_Rigidbody2D.linearVelocity.y);
 			}
 			else if (jumpWallDistX > 0) 
 			{
 				limitVelOnWallJump = false;
-				m_Rigidbody2D.velocity = new Vector2(0, m_Rigidbody2D.velocity.y);
+				m_Rigidbody2D.linearVelocity = new Vector2(0, m_Rigidbody2D.linearVelocity.y);
 			}
 		}
 	}
@@ -142,17 +142,17 @@ public class CharacterController2D : MonoBehaviour
 			// If crouching, check to see if the character can stand up
 			if (isDashing)
 			{
-				m_Rigidbody2D.velocity = new Vector2(transform.localScale.x * m_DashForce, 0);
+				m_Rigidbody2D.linearVelocity = new Vector2(transform.localScale.x * m_DashForce, 0);
 			}
 			//only control the player if grounded or airControl is turned on
 			else if (m_Grounded || m_AirControl)
 			{
-				if (m_Rigidbody2D.velocity.y < -limitFallSpeed)
-					m_Rigidbody2D.velocity = new Vector2(m_Rigidbody2D.velocity.x, -limitFallSpeed);
+				if (m_Rigidbody2D.linearVelocity.y < -limitFallSpeed)
+					m_Rigidbody2D.linearVelocity = new Vector2(m_Rigidbody2D.linearVelocity.x, -limitFallSpeed);
 				// Move the character by finding the target velocity
-				Vector3 targetVelocity = new Vector2(move * 10f, m_Rigidbody2D.velocity.y);
+				Vector3 targetVelocity = new Vector2(move * 10f, m_Rigidbody2D.linearVelocity.y);
 				// And then smoothing it out and applying it to the character
-				m_Rigidbody2D.velocity = Vector3.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref velocity, m_MovementSmoothing);
+				m_Rigidbody2D.linearVelocity = Vector3.SmoothDamp(m_Rigidbody2D.linearVelocity, targetVelocity, ref velocity, m_MovementSmoothing);
 
 				// If the input is moving the player right and the player is facing left...
 				if (move > 0 && !m_FacingRight && !isWallSliding)
@@ -182,14 +182,14 @@ public class CharacterController2D : MonoBehaviour
 			else if (!m_Grounded && jump && canDoubleJump && !isWallSliding)
 			{
 				canDoubleJump = false;
-				m_Rigidbody2D.velocity = new Vector2(m_Rigidbody2D.velocity.x, 0);
+				m_Rigidbody2D.linearVelocity = new Vector2(m_Rigidbody2D.linearVelocity.x, 0);
 				m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce / 1.2f));
 				animator.SetBool("IsDoubleJumping", true);
 			}
 
 			else if (m_IsWall && !m_Grounded)
 			{
-				if (!oldWallSlidding && m_Rigidbody2D.velocity.y < 0 || isDashing)
+				if (!oldWallSlidding && m_Rigidbody2D.linearVelocity.y < 0 || isDashing)
 				{
 					isWallSliding = true;
 					m_WallCheck.localPosition = new Vector3(-m_WallCheck.localPosition.x, m_WallCheck.localPosition.y, 0);
@@ -209,7 +209,7 @@ public class CharacterController2D : MonoBehaviour
 					else 
 					{
 						oldWallSlidding = true;
-						m_Rigidbody2D.velocity = new Vector2(-transform.localScale.x * 2, -5);
+						m_Rigidbody2D.linearVelocity = new Vector2(-transform.localScale.x * 2, -5);
 					}
 				}
 
@@ -217,7 +217,7 @@ public class CharacterController2D : MonoBehaviour
 				{
 					animator.SetBool("IsJumping", true);
 					animator.SetBool("JumpUp", true); 
-					m_Rigidbody2D.velocity = new Vector2(0f, 0f);
+					m_Rigidbody2D.linearVelocity = new Vector2(0f, 0f);
 					m_Rigidbody2D.AddForce(new Vector2(transform.localScale.x * m_JumpForce *1.2f, m_JumpForce));
 					jumpWallStartX = transform.position.x;
 					limitVelOnWallJump = true;
@@ -268,7 +268,7 @@ public class CharacterController2D : MonoBehaviour
 			animator.SetBool("Hit", true);
 			life -= damage;
 			Vector2 damageDir = Vector3.Normalize(transform.position - position) * 40f ;
-			m_Rigidbody2D.velocity = Vector2.zero;
+			m_Rigidbody2D.linearVelocity = Vector2.zero;
 			m_Rigidbody2D.AddForce(damageDir * 10);
 			if (life <= 0)
 			{
@@ -336,7 +336,7 @@ public class CharacterController2D : MonoBehaviour
 		invincible = true;
 		GetComponent<Attack>().enabled = false;
 		yield return new WaitForSeconds(0.4f);
-		m_Rigidbody2D.velocity = new Vector2(0, m_Rigidbody2D.velocity.y);
+		m_Rigidbody2D.linearVelocity = new Vector2(0, m_Rigidbody2D.linearVelocity.y);
 		yield return new WaitForSeconds(1.1f);
 		SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
 	}

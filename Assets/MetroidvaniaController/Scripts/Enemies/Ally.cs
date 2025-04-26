@@ -55,7 +55,7 @@ public class Ally : MonoBehaviour
 		{
 			if (isDashing)
 			{
-				m_Rigidbody2D.velocity = new Vector2(transform.localScale.x * m_DashForce, 0);
+				m_Rigidbody2D.linearVelocity = new Vector2(transform.localScale.x * m_DashForce, 0);
 			}
 			else if (!isHitted)
 			{
@@ -64,12 +64,12 @@ public class Ally : MonoBehaviour
 
 				if (Mathf.Abs(distToPlayer) < 0.25f)
 				{
-					GetComponent<Rigidbody2D>().velocity = new Vector2(0f, m_Rigidbody2D.velocity.y);
+					GetComponent<Rigidbody2D>().linearVelocity = new Vector2(0f, m_Rigidbody2D.linearVelocity.y);
 					anim.SetBool("IsWaiting", true);
 				}
 				else if (Mathf.Abs(distToPlayer) > 0.25f && Mathf.Abs(distToPlayer) < meleeDist && Mathf.Abs(distToPlayerY) < 2f)
 				{
-					GetComponent<Rigidbody2D>().velocity = new Vector2(0f, m_Rigidbody2D.velocity.y);
+					GetComponent<Rigidbody2D>().linearVelocity = new Vector2(0f, m_Rigidbody2D.linearVelocity.y);
 					if ((distToPlayer > 0f && transform.localScale.x < 0f) || (distToPlayer < 0f && transform.localScale.x > 0f)) 
 						Flip();
 					if (canAttack)
@@ -80,7 +80,7 @@ public class Ally : MonoBehaviour
 				else if (Mathf.Abs(distToPlayer) > meleeDist && Mathf.Abs(distToPlayer) < rangeDist)
 				{
 					anim.SetBool("IsWaiting", false);
-					m_Rigidbody2D.velocity = new Vector2(distToPlayer / Mathf.Abs(distToPlayer) * speed, m_Rigidbody2D.velocity.y);
+					m_Rigidbody2D.linearVelocity = new Vector2(distToPlayer / Mathf.Abs(distToPlayer) * speed, m_Rigidbody2D.linearVelocity.y);
 				}
 				else
 				{
@@ -122,13 +122,13 @@ public class Ally : MonoBehaviour
 			enemy = GameObject.Find("DrawCharacter");
 		}
 
-		if (transform.localScale.x * m_Rigidbody2D.velocity.x > 0 && !m_FacingRight && life > 0)
+		if (transform.localScale.x * m_Rigidbody2D.linearVelocity.x > 0 && !m_FacingRight && life > 0)
 		{
 			// ... flip the player.
 			Flip();
 		}
 		// Otherwise if the input is moving the player left and the player is facing right...
-		else if (transform.localScale.x * m_Rigidbody2D.velocity.x < 0 && m_FacingRight && life > 0)
+		else if (transform.localScale.x * m_Rigidbody2D.linearVelocity.x < 0 && m_FacingRight && life > 0)
 		{
 			// ... flip the player.
 			Flip();
@@ -154,7 +154,7 @@ public class Ally : MonoBehaviour
 			damage = Mathf.Abs(damage);
 			anim.SetBool("Hit", true);
 			life -= damage;
-			transform.gameObject.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
+			transform.gameObject.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(0, 0);
 			transform.gameObject.GetComponent<Rigidbody2D>().AddForce(new Vector2(direction * 300f, 100f)); 
 			StartCoroutine(HitTime());
 		}
@@ -197,15 +197,15 @@ public class Ally : MonoBehaviour
 	public void Run()
 	{
 		anim.SetBool("IsWaiting", false);
-		m_Rigidbody2D.velocity = new Vector2(distToPlayer / Mathf.Abs(distToPlayer) * speed, m_Rigidbody2D.velocity.y);
+		m_Rigidbody2D.linearVelocity = new Vector2(distToPlayer / Mathf.Abs(distToPlayer) * speed, m_Rigidbody2D.linearVelocity.y);
 		if (doOnceDecision)
 			StartCoroutine(NextDecision(0.5f));
 	}
 	public void Jump()
 	{
-		Vector3 targetVelocity = new Vector2(distToPlayer / Mathf.Abs(distToPlayer) * speed, m_Rigidbody2D.velocity.y);
+		Vector3 targetVelocity = new Vector2(distToPlayer / Mathf.Abs(distToPlayer) * speed, m_Rigidbody2D.linearVelocity.y);
 		Vector3 velocity = Vector3.zero;
-		m_Rigidbody2D.velocity = Vector3.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref velocity, 0.05f);
+		m_Rigidbody2D.linearVelocity = Vector3.SmoothDamp(m_Rigidbody2D.linearVelocity, targetVelocity, ref velocity, 0.05f);
 		if (doOnceDecision)
 		{
 			anim.SetBool("IsWaiting", false);
@@ -216,7 +216,7 @@ public class Ally : MonoBehaviour
 
 	public void Idle()
 	{
-		m_Rigidbody2D.velocity = new Vector2(0f, m_Rigidbody2D.velocity.y);
+		m_Rigidbody2D.linearVelocity = new Vector2(0f, m_Rigidbody2D.linearVelocity.y);
 		if (doOnceDecision)
 		{
 			anim.SetBool("IsWaiting", true);
@@ -272,7 +272,7 @@ public class Ally : MonoBehaviour
 		capsule.direction = CapsuleDirection2D.Horizontal;
 		transform.GetComponent<Animator>().SetBool("IsDead", true);
 		yield return new WaitForSeconds(0.25f);
-		m_Rigidbody2D.velocity = new Vector2(0, m_Rigidbody2D.velocity.y);
+		m_Rigidbody2D.linearVelocity = new Vector2(0, m_Rigidbody2D.linearVelocity.y);
 		yield return new WaitForSeconds(1f);
 		Destroy(gameObject);
 	}
