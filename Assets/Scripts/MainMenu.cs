@@ -9,19 +9,31 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private Button optionsButton;
     [SerializeField] private Button exitButton;
     [SerializeField] private GameObject mainMenuPanel;
-    [SerializeField] private GameObject optionsPanel;
     [SerializeField] private Slider volumeSlider;
     [SerializeField] private Button backButton;
 
     private Animator mainMenuAnimator;
     private Animator optionsAnimator;
+    private GameObject optionsPanel;
     private const string VolumeKey = "MasterVolume";
     private const float animationDuration = 0.5f;
 
     private void Start()
     {
-        mainMenuAnimator = mainMenuPanel.GetComponent<Animator>();
+        optionsPanel = OptionsManager.Instance.GetOptionsPanel();
+        if (optionsPanel == null)
+        {
+            Debug.LogError("OptionsPanel not found in OptionsManager!");
+            return;
+        }
+
         optionsAnimator = optionsPanel.GetComponent<Animator>();
+        if (optionsAnimator == null)
+        {
+            Debug.LogError("Animator not found on OptionsPanel!");
+        }
+
+        mainMenuAnimator = mainMenuPanel.GetComponent<Animator>();
 
         startButton.onClick.AddListener(StartGame);
         optionsButton.onClick.AddListener(OpenOptions);
@@ -48,6 +60,7 @@ public class MainMenu : MonoBehaviour
 
     private void OpenOptions()
     {
+        Debug.Log("OpenOptions called");
         StartCoroutine(SwitchToOptions());
     }
 
@@ -64,6 +77,7 @@ public class MainMenu : MonoBehaviour
         yield return new WaitForSeconds(animationDuration);
         mainMenuPanel.SetActive(false);
         optionsPanel.SetActive(true);
+        optionsPanel.GetComponent<CanvasGroup>().alpha = 1; // Временное решение
         Debug.Log("Starting FadeIn for Options");
         optionsAnimator.ResetTrigger("FadeOut");
         optionsAnimator.SetTrigger("FadeIn");
