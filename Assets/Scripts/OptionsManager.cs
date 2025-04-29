@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class OptionsManager : MonoBehaviour
 {
@@ -9,11 +10,9 @@ public class OptionsManager : MonoBehaviour
         {
             if (instance == null)
             {
-                // Ищем существующий OptionsManager в сцене
                 instance = FindObjectOfType<OptionsManager>();
                 if (instance == null)
                 {
-                    // Если не нашли, создаём новый из префаба
                     GameObject prefab = Resources.Load<GameObject>("Prefabs/OptionsManager");
                     if (prefab == null)
                     {
@@ -69,83 +68,83 @@ public class OptionsManager : MonoBehaviour
 
     private void FindOrCreateOptionsPanel()
     {
+        // Находим Canvas в сцене
+        Canvas mainCanvas = null;
         Canvas[] canvases = FindObjectsOfType<Canvas>();
-        if (canvases.Length == 0)
+        if (canvases.Length > 0)
         {
-            Debug.LogError("No Canvas found in the scene! OptionsPanel cannot be displayed.");
+            mainCanvas = canvases[0];
+            foreach (Canvas canvas in canvases)
+            {
+                if (canvas.gameObject.name.Contains("UI Canvas"))
+                {
+                    mainCanvas = canvas;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            Debug.LogWarning("No Canvas found in the scene! Creating a new one.");
+            GameObject canvasObj = new GameObject("UI Canvas");
+            mainCanvas = canvasObj.AddComponent<Canvas>();
+            mainCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvasObj.AddComponent<CanvasScaler>();
+            canvasObj.AddComponent<GraphicRaycaster>();
+        }
+
+        // Проверяем, существует ли OptionsPanel
+        if (optionsPanelInstance != null && optionsPanelInstance.transform.parent == mainCanvas.transform)
+        {
+            Debug.Log("OptionsPanel already exists in scene: " + optionsPanelInstance.name);
             return;
         }
 
-        Canvas mainCanvas = canvases[0];
-        foreach (Canvas canvas in canvases)
-        {
-            if (canvas.gameObject.name.Contains("UI Canvas"))
-            {
-                mainCanvas = canvas;
-                break;
-            }
-        }
-
-        int existingPanelsCount = 0;
-        GameObject existingPanel = null;
+        // Пытаемся найти существующий OptionsPanel в Canvas
         foreach (Transform child in mainCanvas.transform)
         {
             if (child.name == "OptionsPanel" || child.name.StartsWith("OptionsPanel(Clone)"))
             {
-                existingPanelsCount++;
-                if (existingPanel == null)
-                {
-                    existingPanel = child.gameObject;
-                }
-            }
-        }
-
-        if (existingPanelsCount > 1)
-        {
-            foreach (Transform child in mainCanvas.transform)
-            {
-                if (child.name == "OptionsPanel" || child.name.StartsWith("OptionsPanel(Clone)"))
-                {
-                    if (child.gameObject != existingPanel)
-                    {
-                        Destroy(child.gameObject);
-                        Debug.Log("Destroyed duplicate OptionsPanel: " + child.name);
-                    }
-                }
-            }
-        }
-
-        if (existingPanel != null)
-        {
-            optionsPanelInstance = existingPanel;
-            Debug.Log("Found existing OptionsPanel in scene: " + optionsPanelInstance.name);
-        }
-        else
-        {
-            if (optionsPanelPrefab == null)
-            {
-                Debug.LogError("OptionsPanelPrefab is not assigned in OptionsManager!");
+                optionsPanelInstance = child.gameObject;
+                Debug.Log("Found existing OptionsPanel in scene: " + optionsPanelInstance.name);
+                DontDestroyOnLoad(optionsPanelInstance);
+                optionsPanelInstance.SetActive(false);
                 return;
             }
-
-            optionsPanelInstance = Instantiate(optionsPanelPrefab, mainCanvas.transform);
-            optionsPanelInstance.name = "OptionsPanel";
-            Debug.Log("Created new OptionsPanel instance in scene: " + optionsPanelInstance.name);
         }
 
-        if (optionsPanelInstance != null)
+        // Если не нашли, создаём новый OptionsPanel
+        if (optionsPanelPrefab == null)
         {
-            optionsPanelInstance.SetActive(false);
+            Debug.LogWarning("OptionsPanelPrefab is not assigned in OptionsManager! Attempting to load from Resources.");
+            optionsPanelPrefab = Resources.Load<GameObject>("Prefabs/OptionsPanel");
+            if (optionsPanelPrefab == null)
+            {
+                Debug.LogError("Could not find OptionsPanel prefab in Resources/Prefabs/OptionsPanel! Please assign the prefab or place it in Resources/Prefabs.");
+                return;
+            }
         }
+
+        optionsPanelInstance = Instantiate(optionsPanelPrefab, mainCanvas.transform);
+        optionsPanelInstance.name = "OptionsPanel";
+        DontDestroyOnLoad(optionsPanelInstance);
+        optionsPanelInstance.SetActive(false);
+        Debug.Log("Created new OptionsPanel instance in scene: " + optionsPanelInstance.name);
     }
 
     public GameObject GetOptionsPanel()
     {
         if (optionsPanelInstance == null)
         {
-            Debug.LogError("OptionsPanelInstance is null! Trying to find or create it.");
+            Debug.LogWarning("OptionsPanelInstance is null! Trying to find or create it.");
             FindOrCreateOptionsPanel();
         }
+
+        if (optionsPanelInstance == null)
+        {
+            Debug.LogError("Failed to create or find OptionsPanel!");
+        }
+
         return optionsPanelInstance;
     }
 }
