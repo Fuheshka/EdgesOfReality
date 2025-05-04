@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class PlayerEffects : MonoBehaviour
 {
@@ -59,6 +60,18 @@ public class PlayerEffects : MonoBehaviour
         characterController.SetWalkForce(baseWalkForce);
         characterController.SetAirControl(baseAirControl);
         Debug.Log($"Speed returned to normal: WalkForce={baseWalkForce}, AirControl={baseAirControl}");
+    }
+
+    public void TakeDamage(float damage)
+    {
+        health -= damage;
+        Debug.Log("TakeDmagePlayer" + damage);
+        
+        if (health <= 0)
+        {
+            Destroy(gameObject);
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
     }
 
     // Атака
