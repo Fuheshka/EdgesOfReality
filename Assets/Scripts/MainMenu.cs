@@ -55,7 +55,7 @@ public class MainMenu : MonoBehaviour
 
     private void StartGame()
     {
-        SceneManager.LoadScene("GameScene");
+        SceneManager.LoadScene("Lucas`s room");
     }
 
     private void OpenOptions()
