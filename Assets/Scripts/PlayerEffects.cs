@@ -8,6 +8,10 @@ public class PlayerEffects : MonoBehaviour
     [SerializeField] private float maxHealth = 100f;
     [SerializeField] private GroundedCharacterController characterController; // Ссылка на GroundedCharacterController
 
+    public float attackRange = 1.5f; // Дальность атаки
+    public int attackDamage = 1; // Урон атаки
+    public LayerMask enemyLayer; // Слой, на котором находятся враги
+
     private float baseWalkForce; // Для хранения исходного значения m_WalkForce
     private float baseAirControl; // Для хранения исходного значения m_AirControl
 
@@ -27,6 +31,14 @@ public class PlayerEffects : MonoBehaviour
         // Сохраняем базовые значения скорости из GroundedCharacterController
         baseWalkForce = characterController.GetWalkForce();
         baseAirControl = characterController.GetInputForce() / characterController.GetWalkForce(); // m_AirControl = GetInputForce() / m_WalkForce в воздухе
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Mouse0)) // Замените на вашу клавишу атаки
+        {
+            Attack();
+        }
     }
 
     // Восстановление здоровья
@@ -77,6 +89,15 @@ public class PlayerEffects : MonoBehaviour
     // Атака
     public void Attack()
     {
+        // Проверяем врагов в радиусе атаки
+        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(transform.position + transform.right * attackRange, 1f, enemyLayer);
+
+        // Наносим урон каждому врагу, который попадает в радиус атаки
+        foreach (Collider2D enemy in hitEnemies)
+        {
+            enemy.GetComponent<MyEnemy>().TakeDamage(attackDamage);
+        }
+
         Debug.Log("Player performed an attack!");
         Animator animator = GetComponent<Animator>();
         if (animator != null)
@@ -87,6 +108,13 @@ public class PlayerEffects : MonoBehaviour
         {
             Debug.LogWarning("Animator not found on player for attack animation!");
         }
+    }
+
+    // Метод для визуализации области атаки (для отладки)
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position + transform.right * attackRange, 0.5f);
     }
 
     // Для отладки: получение текущего здоровья
