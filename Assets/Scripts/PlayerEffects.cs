@@ -6,18 +6,23 @@ public class PlayerEffects : MonoBehaviour
 {
     [SerializeField] private float health = 100f;
     [SerializeField] private float maxHealth = 100f;
-    [SerializeField] private GroundedCharacterController characterController; // Ссылка на GroundedCharacterController
+    [SerializeField] private GroundedCharacterController characterController; // РЎСЃС‹Р»РєР° РЅР° GroundedCharacterController
+    [SerializeField] private float knockbackForce = 5f;
+    
 
-    public float attackRange = 1.5f; // Дальность атаки
-    public int attackDamage = 1; // Урон атаки
-    public LayerMask enemyLayer; // Слой, на котором находятся враги
+    public float attackRange = 1.5f; // Р”Р°Р»СЊРЅРѕСЃС‚СЊ Р°С‚Р°РєРё
+    public int attackDamage = 1; // РЈСЂРѕРЅ Р°С‚Р°РєРё
+    public LayerMask enemyLayer; // РЎР»РѕР№, РЅР° РєРѕС‚РѕСЂРѕРј РЅР°С…РѕРґСЏС‚СЃСЏ РІСЂР°РіРё
 
-    private float baseWalkForce; // Для хранения исходного значения m_WalkForce
-    private float baseAirControl; // Для хранения исходного значения m_AirControl
+    private float baseWalkForce; // Р”Р»СЏ С…СЂР°РЅРµРЅРёСЏ РёСЃС…РѕРґРЅРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ m_WalkForce
+    private float baseAirControl; // Р”Р»СЏ С…СЂР°РЅРµРЅРёСЏ РёСЃС…РѕРґРЅРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ m_AirControl
+    private Rigidbody rb;
 
     private void Start()
     {
-        // Проверяем, что characterController привязан
+        rb = GetComponent<Rigidbody>();
+
+        // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ characterController РїСЂРёРІСЏР·Р°РЅ
         if (characterController == null)
         {
             characterController = GetComponent<GroundedCharacterController>();
@@ -28,27 +33,27 @@ public class PlayerEffects : MonoBehaviour
             }
         }
 
-        // Сохраняем базовые значения скорости из GroundedCharacterController
+        // РЎРѕС…СЂР°РЅСЏРµРј Р±Р°Р·РѕРІС‹Рµ Р·РЅР°С‡РµРЅРёСЏ СЃРєРѕСЂРѕСЃС‚Рё РёР· GroundedCharacterController
         baseWalkForce = characterController.GetWalkForce();
-        baseAirControl = characterController.GetInputForce() / characterController.GetWalkForce(); // m_AirControl = GetInputForce() / m_WalkForce в воздухе
+        baseAirControl = characterController.GetInputForce() / characterController.GetWalkForce(); // m_AirControl = GetInputForce() / m_WalkForce РІ РІРѕР·РґСѓС…Рµ
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Mouse0)) // Замените на вашу клавишу атаки
+        if (Input.GetKeyDown(KeyCode.Mouse0)) // Р—Р°РјРµРЅРёС‚Рµ РЅР° РІР°С€Сѓ РєР»Р°РІРёС€Сѓ Р°С‚Р°РєРё
         {
             Attack();
         }
     }
 
-    // Восстановление здоровья
+    // Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ Р·РґРѕСЂРѕРІСЊСЏ
     public void RestoreHealth(float amount)
     {
         health = Mathf.Min(health + amount, maxHealth);
         Debug.Log($"Health restored! Current health: {health}");
     }
 
-    // Временное увеличение скорости
+    // Р’СЂРµРјРµРЅРЅРѕРµ СѓРІРµР»РёС‡РµРЅРёРµ СЃРєРѕСЂРѕСЃС‚Рё
     public void BoostSpeed(float multiplier, float duration)
     {
         StartCoroutine(SpeedBoostCoroutine(multiplier, duration));
@@ -56,19 +61,19 @@ public class PlayerEffects : MonoBehaviour
 
     private IEnumerator SpeedBoostCoroutine(float multiplier, float duration)
     {
-        // Получаем текущие значения через публичные методы
+        // РџРѕР»СѓС‡Р°РµРј С‚РµРєСѓС‰РёРµ Р·РЅР°С‡РµРЅРёСЏ С‡РµСЂРµР· РїСѓР±Р»РёС‡РЅС‹Рµ РјРµС‚РѕРґС‹
         float currentWalkForce = characterController.GetWalkForce();
         float currentAirControl = characterController.GetInputForce() / currentWalkForce;
 
-        // Изменяем значения через рефлексию или добавим публичные методы в GroundedCharacterController
-        // Для простоты предположим, что у GroundedCharacterController есть публичные сеттеры (добавим их ниже)
+        // РР·РјРµРЅСЏРµРј Р·РЅР°С‡РµРЅРёСЏ С‡РµСЂРµР· СЂРµС„Р»РµРєСЃРёСЋ РёР»Рё РґРѕР±Р°РІРёРј РїСѓР±Р»РёС‡РЅС‹Рµ РјРµС‚РѕРґС‹ РІ GroundedCharacterController
+        // Р”Р»СЏ РїСЂРѕСЃС‚РѕС‚С‹ РїСЂРµРґРїРѕР»РѕР¶РёРј, С‡С‚Рѕ Сѓ GroundedCharacterController РµСЃС‚СЊ РїСѓР±Р»РёС‡РЅС‹Рµ СЃРµС‚С‚РµСЂС‹ (РґРѕР±Р°РІРёРј РёС… РЅРёР¶Рµ)
         characterController.SetWalkForce(currentWalkForce * multiplier);
         characterController.SetAirControl(currentAirControl * multiplier);
 
         Debug.Log($"Speed boosted: WalkForce={currentWalkForce * multiplier}, AirControl={currentAirControl * multiplier}");
         yield return new WaitForSeconds(duration);
 
-        // Восстанавливаем исходные значения
+        // Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј РёСЃС…РѕРґРЅС‹Рµ Р·РЅР°С‡РµРЅРёСЏ
         characterController.SetWalkForce(baseWalkForce);
         characterController.SetAirControl(baseAirControl);
         Debug.Log($"Speed returned to normal: WalkForce={baseWalkForce}, AirControl={baseAirControl}");
@@ -77,8 +82,8 @@ public class PlayerEffects : MonoBehaviour
     public void TakeDamage(float damage)
     {
         health -= damage;
-        Debug.Log("TakeDmagePlayer" + damage);
-        
+        Debug.Log("TakeDamagePlayer: " + damage);
+
         if (health <= 0)
         {
             Destroy(gameObject);
@@ -86,16 +91,17 @@ public class PlayerEffects : MonoBehaviour
         }
     }
 
-    // Атака
     public void Attack()
     {
-        // Проверяем врагов в радиусе атаки
-        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(transform.position + transform.right * attackRange, 1f, enemyLayer);
+        Collider[] hitEnemies = Physics.OverlapSphere(transform.position + transform.right * attackRange, 1f, enemyLayer);
 
-        // Наносим урон каждому врагу, который попадает в радиус атаки
-        foreach (Collider2D enemy in hitEnemies)
+        foreach (Collider enemy in hitEnemies)
         {
-            enemy.GetComponent<MyEnemy>().TakeDamage(attackDamage);
+            MyEnemy enemyScript = enemy.GetComponent<MyEnemy>();
+            if (enemyScript != null)
+            {
+                enemyScript.TakeDamage(attackDamage, knockbackForce);
+            }
         }
 
         Debug.Log("Player performed an attack!");
@@ -110,14 +116,14 @@ public class PlayerEffects : MonoBehaviour
         }
     }
 
-    // Метод для визуализации области атаки (для отладки)
+        // РњРµС‚РѕРґ РґР»СЏ РІРёР·СѓР°Р»РёР·Р°С†РёРё РѕР±Р»Р°СЃС‚Рё Р°С‚Р°РєРё (РґР»СЏ РѕС‚Р»Р°РґРєРё)
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position + transform.right * attackRange, 0.5f);
     }
 
-    // Для отладки: получение текущего здоровья
+    // Р”Р»СЏ РѕС‚Р»Р°РґРєРё: РїРѕР»СѓС‡РµРЅРёРµ С‚РµРєСѓС‰РµРіРѕ Р·РґРѕСЂРѕРІСЊСЏ
     public float GetHealth()
     {
         return health;

@@ -5,24 +5,30 @@ using UnityEngine;
 public class MyEnemy : MonoBehaviour
 {
     public int hp = 3;
-    public float moveSpeed = 3f; // Скорость движения врага
-    public float attackRange = 1.5f; // Радиус атаки
-    public int attackDamage = 7; // Урон при атаке
-    public float attackCooldown = 1f; // Время между атаками
-    public Transform[] patrolPoints; // Точки для патрулирования
-    private int currentPatrolPointIndex = 0; // Индекс текущей точки патруля
-    public float detectionRange = 5f; // Радиус обнаружения игрока
+    public float moveSpeed = 3f; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+    public float attackRange = 1.5f; // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+    public float stopDistance = 1f; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    public int attackDamage = 7; // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+    public float attackCooldown = 1f; // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    public Transform[] patrolPoints; // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    private int currentPatrolPointIndex = 0; // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    public float detectionRange = 5f; // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+    public float raycastDistance = 0.5f; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    public float jumpHeight = 2f; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+    public LayerMask obstacleLayer; // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ)
 
     private SpriteRenderer sprite;
     private GameObject player;
     private float timeLeft = 0f;
     private float timeSinceLastAttack = 0f;
     private Animator animator;
+    private Rigidbody rb; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ Rigidbody пїЅпїЅпїЅ 3D
 
     private void Start()
     {
         sprite = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody>(); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ Rigidbody пїЅпїЅпїЅ 3D
         player = GameObject.FindGameObjectWithTag("Player");
 
         if (patrolPoints.Length == 0)
@@ -30,8 +36,12 @@ public class MyEnemy : MonoBehaviour
             Debug.LogWarning("No patrol points assigned!");
         }
 
-        // Установите начальную цель патрулирования
-        currentPatrolPointIndex = 0; // Убедитесь, что индекс корректный
+        if (rb != null)
+        {
+            rb.freezeRotation = true; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+        }
+
+        currentPatrolPointIndex = 0; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     }
 
     private void Update()
@@ -39,8 +49,8 @@ public class MyEnemy : MonoBehaviour
         timeLeft -= Time.deltaTime;
         timeSinceLastAttack -= Time.deltaTime;
 
-        // Проверяем расстояние до игрока
-        if (player != null && Vector2.Distance(transform.position, player.transform.position) <= detectionRange)
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+        if (player != null && Vector3.Distance(transform.position, player.transform.position) <= detectionRange)
         {
             MoveTowardsPlayer();
         }
@@ -49,16 +59,16 @@ public class MyEnemy : MonoBehaviour
             Patrol();
         }
 
-        // Проверка атаки
-        if (player != null && Vector2.Distance(transform.position, player.transform.position) <= attackRange && timeSinceLastAttack <= 0)
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+        if (player != null && Vector3.Distance(transform.position, player.transform.position) <= attackRange && timeSinceLastAttack <= 0)
         {
             AttackPlayer();
         }
 
-        // Когда враг получает урон, он меняет цвет
+        // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
         if (timeLeft <= 0)
         {
-            sprite.color = new Color(1, 1, 0, 1); // Восстановление нормального цвета
+            sprite.color = new Color(1, 1, 0, 1); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
         }
     }
 
@@ -68,69 +78,165 @@ public class MyEnemy : MonoBehaviour
 
         Transform targetPoint = patrolPoints[currentPatrolPointIndex];
 
-        // Двигаемся к текущей точке патруля
-        transform.position = Vector2.MoveTowards(transform.position, targetPoint.position, moveSpeed * Time.deltaTime);
-        animator.SetBool("isWalking", true); // Включаем анимацию движения
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ x
+        float targetX = targetPoint.position.x;
+        float currentX = transform.position.x;
 
-        // Поворачиваем врага в сторону движения
-        if (transform.position.x < targetPoint.position.x)
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅ x
+        Vector3 newPosition = transform.position;
+        newPosition.x = Mathf.MoveTowards(currentX, targetX, moveSpeed * Time.deltaTime);
+        transform.position = newPosition;
+
+        animator.SetBool("isWalking", true); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+        if (targetX > currentX)
         {
-            transform.localScale = new Vector3(1, 1, 1); // Поворачиваем вправо
+            transform.localScale = new Vector3(1, 1, 1); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         }
         else
         {
-            transform.localScale = new Vector3(-1, 1, 1); // Поворачиваем влево
+            transform.localScale = new Vector3(-1, 1, 1); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
         }
 
-        // Если враг достиг точки патруля, выбираем следующую точку
-        if (Vector2.Distance(transform.position, targetPoint.position) <= 0.1f)
+        // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅ x, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+        if (Mathf.Abs(currentX - targetX) <= 0.1f)
         {
-            // Здесь мы можем остановиться хотя бы на мгновение или добавить задержку
-            // currentPatrolPointIndex = (currentPatrolPointIndex + 1) % patrolPoints.Length; // Следующая точка
-            currentPatrolPointIndex = (currentPatrolPointIndex + 1) % patrolPoints.Length; // Следующая точка
-        }
-        else
-        {
-            // Если враг не достиг точки, выходим из функции и продолжаем движение
-            return;
+            currentPatrolPointIndex = (currentPatrolPointIndex + 1) % patrolPoints.Length; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
         }
     }
 
     private void MoveTowardsPlayer()
     {
-        // Двигаемся к игроку
-        Vector2 direction = (player.transform.position - transform.position).normalized;
-        transform.position = Vector2.MoveTowards(transform.position, player.transform.position, moveSpeed * Time.deltaTime);
-        animator.SetBool("isWalking", true); // Включаем анимацию движения
+        if (player == null) return;
 
-        // Поворачиваем врага в сторону игрока
-        if (direction.x > 0)
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ x пїЅпїЅпїЅпїЅпїЅпїЅ
+        float targetX = player.transform.position.x;
+        float currentX = transform.position.x;
+        float distanceToPlayer = Mathf.Abs(targetX - currentX);
+
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+        bool isPathBlocked = CheckForObstacles(targetX > currentX);
+
+        // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ stopDistance, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+        if (!isPathBlocked && distanceToPlayer > stopDistance)
         {
-            transform.localScale = new Vector3(1, 1, 1); // Поворачиваем вправо
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅ x
+            Vector3 newPosition = transform.position;
+            newPosition.x = Mathf.MoveTowards(currentX, targetX, moveSpeed * Time.deltaTime);
+            transform.position = newPosition;
+
+            animator.SetBool("isWalking", true); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+        }
+        else if (isPathBlocked && rb != null)
+        {
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+            Jump();
+            animator.SetBool("isWalking", false); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         }
         else
         {
-            transform.localScale = new Vector3(-1, 1, 1); // Поворачиваем влево
+            animator.SetBool("isWalking", false); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+        }
+
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+        if (targetX > currentX)
+        {
+            transform.localScale = new Vector3(1, 1, 1); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+        }
+        else
+        {
+            transform.localScale = new Vector3(-1, 1, 1); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+        }
+    }
+
+    private bool CheckForObstacles(bool movingRight)
+    {
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+        Vector3 direction = movingRight ? transform.right : -transform.right;
+        Vector3 checkPosition = transform.position + direction * raycastDistance;
+
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+        Collider[] hitColliders = Physics.OverlapSphere(checkPosition, 0.5f, obstacleLayer);
+        foreach (Collider hit in hitColliders)
+        {
+            if (hit.gameObject != player) // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+            {
+                return true; // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+            }
+        }
+        return false; // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    }
+
+    private void Jump()
+    {
+        if (rb != null && Mathf.Abs(rb.linearVelocity.y) < 0.1f) // РџСЂРѕРІРµСЂРєР°, СЃС‚РѕРёС‚ Р»Рё РЅР° Р·РµРјР»Рµ
+        {
+            float jumpVelocity = Mathf.Sqrt(2f * jumpHeight * Mathf.Abs(Physics.gravity.y));
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, jumpVelocity, rb.linearVelocity.z);
+            animator.SetTrigger("jump");
         }
     }
 
     private void AttackPlayer()
     {
-        player.GetComponent<PlayerEffects>().TakeDamage(attackDamage);
-        animator.SetTrigger("attack"); // Включаем анимацию атаки
+        if (player != null)
+        {
+            PlayerEffects playerEffects = player.GetComponent<PlayerEffects>();
+            playerEffects.TakeDamage(attackDamage); // СѓСЂРѕРЅ
+        }
+
+        animator.SetTrigger("attack");
         timeSinceLastAttack = attackCooldown;
     }
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(int damage, float knockbackForce1)
     {
         hp -= damage;
-        sprite.color = new Color(1, 0, 0, 1); // Красный цвет при получении урона
+        sprite.color = new Color(1, 0, 0, 1);
         timeLeft = 0.1f;
+
+        // РћС‚С‚Р°Р»РєРёРІР°РЅРёРµ РѕС‚ РёРіСЂРѕРєР°
+        Vector3 knockbackDir = (transform.position - player.transform.position).normalized;
+        ApplyKnockback(knockbackDir, knockbackForce1);
 
         if (hp <= 0)
         {
-            animator.SetTrigger("die"); // Включаем анимацию смерти
-            Destroy(gameObject, 1f); // Уничтожаем объект через 1 секунду после анимации
+            animator.SetTrigger("die");
+            Destroy(gameObject, 1f);
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            PlayerEffects playerEffects = collision.gameObject.GetComponent<PlayerEffects>();
+            if (playerEffects != null)
+            {
+                playerEffects.TakeDamage(attackDamage);
+            }
+        }
+    }
+
+    // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    private void OnDrawGizmos()
+    {
+        if (player != null)
+        {
+            Gizmos.color = Color.red;
+            bool movingRight = player.transform.position.x > transform.position.x;
+            Vector3 direction = movingRight ? transform.right : -transform.right;
+            Vector3 checkPosition = transform.position + direction * raycastDistance;
+            Gizmos.DrawWireSphere(checkPosition, 0.5f);
+        }
+    }
+
+    public void ApplyKnockback(Vector3 direction, float force)
+    {
+        if (rb != null)
+        {
+            rb.AddForce(direction.normalized * force, ForceMode.Impulse);
         }
     }
 }
