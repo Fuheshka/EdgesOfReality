@@ -12,6 +12,7 @@ public class PlaneLaunchTrigger : MonoBehaviour {
     bool m_IsLaunching;
     Vector3 m_CharacterStartPosition;
 
+    [System.Obsolete]
     void Start()
     {
         m_Character = FindObjectOfType<CharacterControllerBase>();

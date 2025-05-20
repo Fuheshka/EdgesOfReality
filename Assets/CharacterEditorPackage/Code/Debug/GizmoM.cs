@@ -37,6 +37,8 @@ public class GizmoM : MonoBehaviour
     bool m_GizmosAreActive;
     float m_LastGizmoActiveTime;
     static GizmoM g_GizmoM;
+
+    [System.Obsolete]
     static GizmoM Get()
     {
         if (g_GizmoM == null)
@@ -46,7 +48,8 @@ public class GizmoM : MonoBehaviour
         return g_GizmoM;
     }
 #endif
-	public static void AddLine(Vector3 a_StartPosition, Vector3 a_EndPosition, Color a_Color, float a_TimeOut = 0)
+    [System.Obsolete]
+    public static void AddLine(Vector3 a_StartPosition, Vector3 a_EndPosition, Color a_Color, float a_TimeOut = 0)
     {
 #if UNITY_EDITOR
         if (!Get())

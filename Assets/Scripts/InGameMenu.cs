@@ -116,6 +116,20 @@ public class InGameMenu : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha4)) Inventory.Instance.AddItem("Knife");
     }
 
+    public static InGameMenu Instance { get; private set; }
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject); // сохраняет объект между сценами
+    }
+
     private void PauseGame()
     {
         Debug.Log("Pausing game");
@@ -154,7 +168,7 @@ public class InGameMenu : MonoBehaviour
     private void GoToMainMenu()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene("MainMenuScene");
+        SceneManager.LoadScene("MainMenu");
     }
 
     private IEnumerator CloseInGameMenu()
